@@ -258,9 +258,11 @@ train_dataloader = DataLoader(train_dataset, batch_size = config.batch_size, shu
 val_dataloader = DataLoader(val_dataset)
 test_dataloader = DataLoader(test_dataset)
 
+
 # Sample usage for multilabel
 pokemon = train_dataset[1]
 show_image(pokemon[0], *train_dataset.get_labels_from_vector(pokemon[1]))
+
 
 # Sample usage for multiclass
 # show_image(pokemon[0], *train_dataset.get_labels(*pokemon[1:]))
@@ -268,6 +270,8 @@ show_image(pokemon[0], *train_dataset.get_labels_from_vector(pokemon[1]))
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
+
+'''model creation'''
 
 
 class UnknownModeException(Exception):
@@ -281,7 +285,7 @@ class PokemonFCBlock(nn.Module):
     The final layer for a PokemonCNN.
     """
 
-    def __init__(self, in_features, out_features, mode="none", dropout=0.2):
+    def __init__(self, in_features, out_features, mode="none", dropout=0.3):
         """
         Initializes a new final layer.
 
@@ -453,13 +457,18 @@ class MultilabelModelTrainer(ModelTrainer):
 model_trainer = MultilabelModelTrainer(model, optimizer, criterion, device, callback)
 model_trainer.train(train_dataloader, val_dataloader)
 
-import random
-
-random_idx = random.randint(0, len(train_dataset)-1)
-pokemon = train_dataset[random_idx]
-with torch.no_grad():
-    feature = pokemon[0].to(device)
-    prediction = model(feature.unsqueeze(0))
+i = 0
+count = 4
+while True:
+    i += 1
+    if i == count:
+        break
+    import random
+    random_idx = random.randint(0, len(train_dataset)-1)
+    pokemon = train_dataset[random_idx]
+    with torch.no_grad():
+        feature = pokemon[0].to(device)
+        prediction = model(feature.unsqueeze(0))
 
     show_image(pokemon[0], *train_dataset.get_labels_from_vector(pokemon[1]))
 
@@ -473,8 +482,7 @@ with torch.no_grad():
         print(train_dataset.get_labels_from_id(type1, type2))
         print(f"{type1}: {prediction.squeeze(0)[type1]}")
         print(f"{type2}: {prediction.squeeze(0)[type2]}")
-
-
+    show_image(pokemon[0], *train_dataset.get_labels_from_vector(pokemon[1]))
 ## Submission
 
 # make the predictions with trained model and submit the predictions.
